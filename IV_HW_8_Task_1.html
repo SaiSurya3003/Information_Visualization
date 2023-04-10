@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <h1>Information Visualization HomeWork-8</h1>
+  <h2>by- Sai Surya Teja Makarla</h2>
+  <h3>Sales by Cars from 2010 to 2022</h3>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+	h1{
+		font-family: Arial, Helvetica, sans-serif;
+		text-align: center;
+	}
+    h2{
+		font-family: Arial, Helvetica, sans-serif;
+		text-align: right;
+	}
+    h3{
+        font-family: Arial, Helvetica, sans-serif;
+		text-align: center; 
+    }
+    .dropdown {
+    position: absolute;
+    left: 05%;
+    top: 30%;
+    }
+    .chart {
+      width: 700px;
+      height: 750px;
+      margin: 0 auto;
+      background-color: #f5f5f5;
+	  text-align: left;
+	  float: left;
+    }
+    .bar {
+      fill: orange;
+    }
+    .bar:hover {
+      fill: green;
+    }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 5px;
+      font: 15px sans-serif;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 5px;
+      pointer-events: none;
+    }
+	svg {
+      position: absolute;
+      left: 50px;
+      margin-top: 80px;
+    }
+  </style>
+</head>
+<body>
+<div class="dropdown">
+    <select onchange="changeChart()" id="chart-select">
+        <option value="option1" selected="selected">Benz</option>
+        <option value="option2">Audi</option>
+        <option value="option3">BMW</option>
+        <option value="option4">Hyundai</option>
+        <option value="option5">Honda</option>
+    </select>
+</div>
+
+<div id="chart"></div>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script>
+    // Define your data
+    var Benz = [
+            { year: 2010, value: 10 },
+            { year: 2011, value: 15 },
+            { year: 2012, value: 19 },
+            { year: 2013, value: 20 },
+            { year: 2014, value: 14 },
+            { year: 2015, value: 19 },
+            { year: 2016, value: 14 },
+            { year: 2017, value: 12 },
+            { year: 2018, value: 16 },
+            { year: 2019, value: 18 },
+            { year: 2020, value: 17 },
+            { year: 2021, value: 25 },
+            { year: 2022, value: 20 }
+        ];
+    
+        var Audi = [
+            { year: 2010, value: 22 },
+            { year: 2011, value: 30 },
+            { year: 2012, value: 21 },
+            { year: 2013, value: 11 },
+            { year: 2014, value: 14 },
+            { year: 2015, value: 16 },
+            { year: 2016, value: 14 },
+            { year: 2017, value: 15 },
+            { year: 2018, value: 16 },
+            { year: 2019, value: 18 },
+            { year: 2020, value: 28 },
+            { year: 2021, value: 22 },
+            { year: 2022, value: 39 }
+        ];
+
+        var Honda = [
+            { year: 2010, value: 30 },
+            { year: 2011, value: 35 },
+            { year: 2012, value: 19 },
+            { year: 2013, value: 11 },
+            { year: 2014, value: 14 },
+            { year: 2015, value: 29 },
+            { year: 2016, value: 14 },
+            { year: 2017, value: 26 },
+            { year: 2018, value: 16 },
+            { year: 2019, value: 33 },
+            { year: 2020, value: 17 },
+            { year: 2021, value: 35 },
+            { year: 2022, value: 30 }
+        ];
+
+        var BMW = [
+            { year: 2010, value: 10 },
+            { year: 2011, value: 15 },
+            { year: 2012, value: 29 },
+            { year: 2013, value: 15 },
+            { year: 2014, value: 14 },
+            { year: 2015, value: 27 },
+            { year: 2016, value: 23 },
+            { year: 2017, value: 26 },
+            { year: 2018, value: 24 },
+            { year: 2019, value: 18 },
+            { year: 2020, value: 35 },
+            { year: 2021, value: 25 },
+            { year: 2022, value: 40 }
+        ];
+    
+        var Hyundai = [
+            { year: 2010, value: 19 },
+            { year: 2011, value: 20 },
+            { year: 2012, value: 30 },
+            { year: 2013, value: 5 },
+            { year: 2014, value: 18 },
+            { year: 2015, value: 17 },
+            { year: 2016, value: 30 },
+            { year: 2017, value: 25 },
+            { year: 2018, value: 20 },
+            { year: 2019, value: 19 },
+            { year: 2020, value: 17 },
+            { year: 2021, value: 18 },
+            { year: 2022, value: 35 }
+        ];
+
+</script>
+<script>
+    var currentData = Benz;
+
+    var margin = {top: 20, right: 20, bottom: 80, left: 80},
+        width = 700 - margin.left - margin.right,
+        height = 700 - margin.top - margin.bottom;
+
+    // Append SVG
+    var svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    // Define scales
+    var x = d3.scaleBand()
+        .domain([2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022])
+        .range([0, width])
+        .padding(0.1);
+
+    var y = d3.scaleLinear()
+        .domain([0,40])
+        .range([height, 0]);
+
+    // Define axes
+    var xAxis = d3.axisBottom(x);
+
+    var yAxis = d3.axisLeft(y);
+
+    // Add axes
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .call(yAxis);
+
+    // Add chart title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("text-decoration", "underline")
+
+    // Define function to update chart
+    function updateChart(data) {
+
+        // Remove existing bars
+        svg.selectAll(".bar")
+            .remove();
+
+        // Add new bars
+        var bars = svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", function (d) {
+                return x(d.year);
+            })
+            .attr("width", x.bandwidth())
+            .attr("y", function (d) {
+                return y(d.value);
+            })
+            .attr("height", function (d) {
+                return height - y(d.value);
+            });
+
+        // Add tooltip
+        var tooltip = svg.append("text")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        bars.on("mouseover", function (d) {
+            tooltip.text(d.value)
+                .attr("x", x(d.year) + x.bandwidth() / 2)
+                .attr("y", y(d.value) - 10)
+                .style("opacity", 1);
+        })
+            .on("mouseout", function (d) {
+                tooltip.style("opacity", 0);
+            });
+
+    }
+
+    function changeChart() {
+        var selectValue = d3.select("#chart-select").node().value;
+
+        if (selectValue === "option1") {
+            currentData = Benz;
+        } else if (selectValue === "option2") {
+            currentData = Audi;
+        } else if (selectValue === "option3") {
+            currentData = BMW;
+        } else if (selectValue === "option4") {
+            currentData = Hyundai;
+        } else if (selectValue === "option5") {
+            currentData = Honda;
+        }
+
+        updateChart(currentData);
+    }
+
+    // Update initial chart
+    updateChart(currentData);
+
+</script>
+</body>
+</html>
